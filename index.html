@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GL Couverture Lille | Simulateur 3D</title>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#071521;color:#f5f7fa;font-family:Arial,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;padding:20px 5%;background:#081723;border-bottom:1px solid #304453}
+.logo{font-size:21px;font-weight:bold;color:#e7b653}
+.logo small{display:block;font-size:11px;letter-spacing:4px}
+nav{display:flex;gap:18px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none;font-size:14px}
+nav a:hover{color:#e7b653}
+.button{display:inline-block;padding:12px 17px;border-radius:6px;background:#e7b653;color:#101820;text-decoration:none;font-weight:bold;border:0;cursor:pointer}
+.hero{padding:45px 5%;background:linear-gradient(120deg,#071521,#173343)}
+.eyebrow{color:#e7b653;font-size:12px;font-weight:bold;letter-spacing:3px}
+.hero h1{font-size:clamp(30px,5vw,49px);margin:12px 0}
+.hero p{color:#c4d0d8;line-height:1.7;max-width:700px}
+.features{display:flex;gap:20px;flex-wrap:wrap;margin-top:22px;font-size:13px}
+.features span:before{content:"✦ ";color:#e7b653}
+main{padding:20px 1.5%}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px}
+.panel{min-width:0;background:#102432;border:1px solid #304958;border-radius:9px;overflow:hidden}
+.panel-title{padding:16px;border-bottom:1px solid #304958;font-weight:bold;display:flex;justify-content:space-between;gap:10px}
+.badge{color:#e7b653;font-size:11px;letter-spacing:1px}
+#scene{position:relative;height:520px;background:#b9d1df}
+#scene canvas{width:100%;height:100%;display:block}
+.help{padding:13px;color:#c4d0d8;font-size:12px;line-height:1.7}
+.controls{padding:17px}
+.controls h2{font-size:20px;margin:0 0 8px}
+.controls p{color:#bac7d0;font-size:12px;line-height:1.6}
+label{display:block;font-size:13px;font-weight:bold;margin:18px 0 8px}
+select,input[type=color]{width:100%;height:42px;background:#071521;color:white;border:1px solid #435a69;border-radius:6px;padding:7px}
+input[type=range]{width:100%;accent-color:#e7b653}
+.materials{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.material{background:#172e3d;color:white;border:1px solid #435969;padding:10px 5px;border-radius:6px;cursor:pointer;font-size:12px}
+.material.active{border:2px solid #e7b653;color:#e7b653}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}
+.secondary{background:#263d4b;color:white;border:1px solid #526777}
+.gold{background:#e7b653;color:#101820;border:0}
+.full{width:100%;margin-top:10px}
+section.info{padding:45px 5%}
+.info h2{font-size:30px}
+.info p{color:#bdc9d1;line-height:1.7;max-width:800px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:#102432;border:1px solid #304958;border-radius:8px;padding:20px}
+.card h3{color:#e7b653}
+.contact{padding:35px 5%;background:#102432;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer{text-align:center;padding:22px;color:#aebdc7;font-size:12px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}#scene{height:400px}.cards{grid-template-columns:1fr}}
+@media(max-width:480px){header{padding:15px}nav{gap:12px}#scene{height:340px}main{padding:10px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">⌂ GL COUVERTURE<small>LILLE</small></div>
+  <nav>
+    <a href="#accueil">Accueil</a>
+    <a href="#simulateur">Simulateur 3D</a>
+    <a href="#services">Services</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <a class="button" href="#contact">Demander un devis</a>
+</header>
+<section class="hero" id="accueil">
+  <div class="eyebrow">SIMULATEUR DE TOITURE EN 3D</div>
+  <h1>Imaginez votre future toiture</h1>
+  <p>Modifiez les matériaux, les couleurs et la pente du toit. Faites tourner la maison en trois dimensions pour visualiser votre projet sous plusieurs angles.</p>
+  <div class="features">
+    <span>Maison 3D interactive</span>
+    <span>Matériaux personnalisables</span>
+    <span>Couleurs modifiables</span>
+  </div>
+</section>
+<main id="simulateur">
+<div class="layout">
+<section class="panel">
+  <div class="panel-title">
+    <span>🏠 Votre maison en 3D</span>
+    <span class="badge">APERÇU INTERACTIF</span>
+  </div>
+  <div id="scene"></div>
+  <div class="help">
+    🖱️ Faites glisser pour tourner la maison.<br>
+    🔍 Utilisez la molette ou pincez l'écran pour zoomer.<br>
+    ↻ Double-cliquez sur la maison pour réinitialiser la vue.
+  </div>
+</section>
+<aside class="panel">
+<div class="controls">
+  <h2>Personnalisation</h2>
+  <p>Les changements seront visibles directement sur la maison.</p>
+
+1. Type de couverture
+
+  <div class="materials">
+    <button class="material active" data-type="tile">Tuile mécanique</button>
+    <button class="material" data-type="flat">Tuile plate</button>
+    <button class="material" data-type="slate">Ardoise</button>
+    <button class="material" data-type="zinc">Zinc</button>
+    <button class="material" data-type="steel">Bac acier</button>
+  </div>
+
+2. Couleur de toiture
+<option value="#914b35">Tuile rouge</option>
+<option value="#713a32">Rouge brun</option>
+<option value="#343940">Anthracite</option>
+<option value="#758087">Gris zinc</option>
+<option value="#202328">Noir graphite</option>
+<option value="#80684f">Brun</option>
+</select>
+
+3. Pente : 35°
+  <div class="two">
+    <div>
+      <label for="wallColor">Couleur des murs</label>
+      <input id="wallColor" type="color" value="#e5ddce">
+    </div>
+    <div>
+      <label for="trimColor">Menuiseries</label>
+      <input id="trimColor" type="color" value="#303a42">
+    </div>
+  </div>
+  <div class="actions">
+    <button class="secondary" id="reset">↺ Réinitialiser</button>
+    <button class="gold" id="rotation">⏸ Rotation</button>
+  </div>
+
+Demander un devis
+
+  <p>Maquette indicative : les dimensions ne remplacent pas un relevé technique ni un devis professionnel.</p>
+</div>
+</aside>
+</div>
+</main>
+<section class="info" id="services">
+  <div class="eyebrow">NOS PRESTATIONS</div>
+  <h2>Votre projet de toiture</h2>
+  <p>Comparez différents styles de couverture et préparez votre projet avant de demander conseil à un professionnel.</p>
+  <div class="cards">
+    <article class="card"><h3>Couverture</h3><p>Tuiles, ardoises, zinc et bac acier.</p></article>
+    <article class="card"><h3>Rénovation</h3><p>Visualisez une idée de rénovation de toiture.</p></article>
+    <article class="card"><h3>Finitions</h3><p>Personnalisez les couleurs de votre maison.</p></article>
+  </div>
+</section>
+<section class="contact" id="contact">
+  <div>
+    <h2>Un projet de toiture ?</h2>
+    <p>Contactez GL Couverture Lille pour discuter de votre projet.</p>
+  </div>
+  <a class="button" href="mailto:GL.couverture.lille@gmail.com?subject=Demande%20de%20devis">✉ Demander un devis</a>
+</section>
+<footer>© GL Couverture Lille · Simulateur 3D de toiture</footer>
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+const container = document.getElementById("scene");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#b9d1df");
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+camera.position.set(8, 5.5, 9);
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+container.innerHTML = "";
+container.appendChild(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.minDistance = 5;
+controls.maxDistance = 18;
+controls.target.set(0, 1.5, 0);
+scene.add(new THREE.HemisphereLight(0xeaf6ff, 0x52616b, 2.2));
+const sun = new THREE.DirectionalLight(0xffffff, 3);
+sun.position.set(6, 10, 7);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+scene.add(sun);
+const house = new THREE.Group();
+scene.add(house);
+const roofGroup = new THREE.Group();
+house.add(roofGroup);
+const wallMaterial = new THREE.MeshStandardMaterial({color:"#e5ddce", roughness:.85});
+const trimMaterial = new THREE.MeshStandardMaterial({color:"#303a42", roughness:.55});
+const roofMaterial = new THREE.MeshStandardMaterial({color:"#914b35", roughness:.8});
+const glassMaterial = new THREE.MeshStandardMaterial({color:"#8ed5e8", metalness:.1, roughness:.2});
+const groundMaterial = new THREE.MeshStandardMaterial({color:"#789b78", roughness:1});
+const wall = new THREE.Mesh(new THREE.BoxGeometry(5.8, 3.1, 4.2), wallMaterial);
+wall.position.y = 1.55;
+wall.castShadow = true;
+wall.receiveShadow = true;
+house.add(wall);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), groundMaterial);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.03;
+ground.receiveShadow = true;
+scene.add(ground);
+const roofParts = [];
+const windows = [];
+function createRoof() {
+  roofParts.forEach(part => roofGroup.remove(part));
+  roofParts.length = 0;
+  const pitch = THREE.MathUtils.degToRad(Number(document.getElementById("pitch").value));
+  const width = 6.35;
+  const depth = 4.65;
+  const height = Math.tan(pitch) * (width / 2);
+  const roofY = 3.1 + height / 2;
+  const left = new THREE.Mesh(new THREE.BoxGeometry(width / 2 + .12, .16, depth), roofMaterial);
+  left.position.set(-width / 4, roofY, 0);
+  left.rotation.z = -pitch;
+  left.castShadow = true;
+  left.receiveShadow = true;
+  const right = new THREE.Mesh(new THREE.BoxGeometry(width / 2 + .12, .16, depth), roofMaterial);
+  right.position.set(width / 4, roofY, 0);
+  right.rotation.z = pitch;
+  right.castShadow = true;
+  right.receiveShadow = true;
+  roofGroup.add(left, right);
+  roofParts.push(left, right);
+  const ridge = new THREE.Mesh(new THREE.BoxGeometry(.18, .18, depth + .12), trimMaterial);
+  ridge.position.set(0, 3.1 + height, 0);
+  ridge.castShadow = true;
+  roofGroup.add(ridge);
+  roofParts.push(ridge);
+  updateRoofTexture();
+}
+function createWindow(x, y, z, rotationY = 0, width = 1.15, height = 1.25) {
+  const group = new THREE.Group();
+  group.position.set(x, y, z);
+  group.rotation.y = rotationY;
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(width, height, .12), trimMaterial);
+  frame.castShadow = true;
+  const glass = new THREE.Mesh(new THREE.BoxGeometry(width * .78, height * .76, .14), glassMaterial);
+  glass.position.z = .08;
+  const vertical = new THREE.Mesh(new THREE.BoxGeometry(.06, height * .76, .17), trimMaterial);
+  vertical.position.z = .16;
+  const horizontal = new THREE.Mesh(new THREE.BoxGeometry(width * .78, .06, .17), trimMaterial);
+  horizontal.position.z = .16;
+  group.add(frame, glass, vertical, horizontal);
+  house.add(group);
+  windows.push(group);
+}
+createWindow(-1.65, 1.65, 2.13);
+createWindow(1.65, 1.65, 2.13);
+createWindow(-1.65, 1.65, -2.13, Math.PI);
+createWindow(1.65, 1.65, -2.13, Math.PI);
+createWindow(2.91, 1.65, 0, Math.PI / 2, 1.1, 1.25);
+createWindow(-2.91, 1.65, 0, -Math.PI / 2, 1.1, 1.25);
+const door = new THREE.Mesh(new THREE.BoxGeometry(1.05, 2.05, .14), trimMaterial);
+door.position.set(0, 1.02, 2.14);
+door.castShadow = true;
+house.add(door);
+const chimney = new THREE.Mesh(new THREE.BoxGeometry(.65, 1.25, .65), new THREE.MeshStandardMaterial({color:"#9b9b91",roughness:1}));
+chimney.position.set(1.65, 4.05, -.55);
+chimney.castShadow = true;
+house.add(chimney);
+function updateRoofTexture() {
+  const type = document.querySelector(".material.active")?.dataset.type || "tile";
+  const color = document.getElementById("roofColor").value;
+  roofMaterial.color.set(color);
+  roofMaterial.map = null;
+  roofMaterial.bumpMap = null;
+  roofMaterial.roughness = type === "zinc" ? .35 : type === "steel" ? .45 : .8;
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, 256, 256);
+  ctx.strokeStyle = type === "slate" ? "rgba(220,230,235,.28)" : "rgba(30,20,15,.25)";
+  ctx.lineWidth = type === "flat" ? 3 : 2;
+  if (type === "tile" || type === "flat") {
+    for (let y = 0; y < 256; y += type === "flat" ? 24 : 18) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(256, y);
+      ctx.stroke();
+      if (type === "tile") {
+        for (let x = 0; x < 256; x += 28) {
+          ctx.beginPath();
+          ctx.arc(x + ((y / 18) % 2) * 14, y, 14, 0, Math.PI);
+          ctx.stroke();
+        }
+      }
+    }
+  } else if (type === "slate") {
+    for (let y = 0; y < 256; y += 28) {
+      for (let x = 0; x < 256; x += 42) {
+        ctx.strokeRect(x + ((y / 28) % 2) * 21, y, 42, 28);
+      }
+    }
+  } else {
+    for (let x = 0; x < 256; x += type === "zinc" ? 32 : 48) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 256);
+      ctx.stroke();
+    }
+  }
+  roofMaterial.map = new THREE.CanvasTexture(canvas);
+  roofMaterial.map.wrapS = THREE.RepeatWrapping;
+  roofMaterial.map.wrapT = THREE.RepeatWrapping;
+  roofMaterial.map.repeat.set(2, 2);
+  roofMaterial.needsUpdate = true;
+}
+function resize() {
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(width, height, false);
+}
+window.addEventListener("resize", resize);
+let rotating = true;
+function animate() {
+  requestAnimationFrame(animate);
+  if (rotating) house.rotation.y += .0025;
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+resize();
+createRoof();
+document.getElementById("pitch").addEventListener("input", event => {
+  document.getElementById("pitchValue").textContent = `${event.target.value}°`;
+  createRoof();
+});
+document.getElementById("roofColor").addEventListener("change", updateRoofTexture);
+document.getElementById("wallColor").addEventListener("input", event => {
+  wallMaterial.color.set(event.target.value);
+});
+document.getElementById("trimColor").addEventListener("input", event => {
+  trimMaterial.color.set(event.target.value);
+});
+document.querySelectorAll(".material").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".material").forEach(item => item.classList.remove("active"));
+    button.classList.add("active");
+    updateRoofTexture();
+  });
+});
+document.getElementById("rotation").addEventListener("click", event => {
+  rotating = !rotating;
+  event.currentTarget.textContent = rotating ? "⏸ Rotation" : "▶ Rotation";
+});
+document.getElementById("reset").addEventListener("click", () => {
+  camera.position.set(8, 5.5, 9);
+  controls.target.set(0, 1.5, 0);
+  controls.update();
+  house.rotation.set(0, 0, 0);
+  document.getElementById("roofColor").value = "#914b35";
+  document.getElementById("pitch").value = 35;
+  document.getElementById("pitchValue").textContent = "35°";
+  document.getElementById("wallColor").value = "#e5ddce";
+  document.getElementById("trimColor").value = "#303a42";
+  wallMaterial.color.set("#e5ddce");
+  trimMaterial.color.set("#303a42");
+  document.querySelectorAll(".material").forEach(item => item.classList.remove("active"));
+  document.querySelector('[data-type="tile"]').classList.add("active");
+  createRoof();
+});
+container.addEventListener("dblclick", () => {
+  camera.position.set(8, 5.5, 9);
+  controls.target.set(0, 1.5, 0);
+  controls.update();
+  house.rotation.set(0, 0, 0);
+});
+document.getElementById("quote").addEventListener("click", () => {
+  document.getElementById("contact").scrollIntoView({behavior:"smooth"});
+});
+</script>
+</body>
+</html>
